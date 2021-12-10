@@ -1,9 +1,9 @@
 class Node:
     def __init__(self, key=0, value=0) -> None:
-        self.key = key
-        self.value = value
-        self.prev = None
-        self.next = None
+        self.key: int = key
+        self.value: int = value
+        self.prev: Node = None
+        self.next: Node = None
 
 
 class LRUCache:
@@ -13,50 +13,51 @@ class LRUCache:
         self.size = 0
         self.store: dict[int, Node] = {}
         self.head = Node()
-        self.head.prev, self.head.next = -1, -1
-        self.store[-2] = self.head
         self.tail = Node()
-        self.tail.prev, self.tail.next = -2, -2
-        self.store[-1] = self.tail
+        self.head.next = self.tail
+        self.tail.prev = self.head
 
     def get(self, _key: int) -> int:
-        if _key not in self.store or _key == 0 or _key == -1:
+        if _key not in self.store:
             return -1
         else:
-            self.moveHead(_key)
-            return self.store[_key].value
+            node = self.store[_key]
+            self.moveHead(node)
+            return node.value
 
     def put(self, _key: int, _value: int) -> None:
         if _key not in self.store:
             node = Node(_key, _value)
             self.store[_key] = node
-            self.addHead(_key)
+            self.addHead(node)
             self.size += 1
             if self.size > self.limit:
                 self.removeTail()
+                self.size -= 1
         else:
-            self.store[_key].value = _value
-            self.moveHead(_key)
+            node = self.store[_key]
+            node.value = _value
+            self.moveHead(node)
 
-    def addHead(self, _key: int) -> None:
-        self.store[_key].next = self.head.next
-        self.store[_key].prev = -2
-        self.store[self.head.next].prev = _key
-        self.head.next = _key
+    def removeNode(self, _node: Node) -> None:
+        _node.prev.next = _node.next
+        _node.next.prev = _node.prev
 
-    def moveHead(self, _key: int) -> None:
-        prevNode = self.store[_key].prev
-        nextNode = self.store[_key].next
-        self.store[prevNode].next = nextNode
-        self.store[nextNode].prev = prevNode
-        self.addHead(_key)
+    def addHead(self, _node: Node) -> None:
+        _node.next = self.head.next
+        _node.prev = self.head
+        self.head.next.prev = _node
+        self.head.next = _node
+
+    def moveHead(self, _node: Node) -> None:
+        self.removeNode(_node)
+        self.addHead(_node)
 
     def removeTail(self) -> None:
-        _key = self.tail.prev
-        _prev = self.store[_key].prev
-        self.store[_prev].next = -1
-        self.tail.prev = _prev
-        self.store.pop(_key)
+        node = self.tail.prev
+        node.prev.next = self.tail
+        self.tail.prev = node.prev
+        self.store.pop(node.key)
 
         # Your LRUCache object will be instantiated and called as such:
         # obj = LRUCache(capacity)
