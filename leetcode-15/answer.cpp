@@ -13,9 +13,9 @@ public:
             return answer; //for input like []
         sort(nums.begin(), nums.end());
         auto i = nums.begin();
-        while (i < nums.begin() + (nums.size() - 2)) //nums.end() cann't be operate, make this complex,don't use iterator?
+        while (i < nums.end() - 2)
         {
-            auto j = i + 1, k = nums.begin() + (nums.size() - 1);
+            auto j = i + 1, k = nums.end() - 1;
             while (j < k)
             {
                 int sum = *i + *j + *k;
