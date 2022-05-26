@@ -12,8 +12,9 @@ public:
 		for (auto& position : positions) {
 			int size = position[1];
 			int left = position[0], right = left + size - 1;
-			auto it_left = rangeHeights.lower_bound(left),
+			auto it_left = rangeHeights.upper_bound(left),
 				it_right = rangeHeights.upper_bound(right);
+			int tmpHeight = prev(it_right)->second;
 
 			int maxHeight = size;
 			for (auto it = it_left; it != it_right; ++it) {
@@ -21,6 +22,8 @@ public:
 			}
 			rangeHeights.erase(it_left, it_right);
 			rangeHeights[left] = maxHeight;
+			if (it_right == rangeHeights.end() || it_right->first != right + 1)
+				rangeHeights[right + 1] = tmpHeight;
 
 			ans.push_back(max(ans.back(), maxHeight));
 		}
